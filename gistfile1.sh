@@ -1,6 +1,13 @@
+#!/bin/bash
+#
+# Set our bash prompt according to the branch/status of the current git 
+# repository.
+#
+# Taken from http://gist.github.com/31934
+
         RED="\[\033[0;31m\]"
      YELLOW="\[\033[0;33m\]"
- 	  GREEN="\[\033[0;32m\]"
+      GREEN="\[\033[0;32m\]"
        BLUE="\[\033[0;34m\]"
   LIGHT_RED="\[\033[1;31m\]"
 LIGHT_GREEN="\[\033[1;32m\]"
@@ -8,43 +15,53 @@ LIGHT_GREEN="\[\033[1;32m\]"
  LIGHT_GRAY="\[\033[0;37m\]"
  COLOR_NONE="\[\e[0m\]"
 
-function parse_git_branch {
+function is_git_repository {
+  git branch > /dev/null 2>&1
+}
 
-  [ -d .git ] || return 1
+function parse_git_branch {
+  is_git_repository || return 1
   git_status="$(git status 2> /dev/null)"
   branch_pattern="^# On branch ([^${IFS}]*)"
   remote_pattern="# Your branch is (.*) of"
   diverge_pattern="# Your branch and (.*) have diverged"
-  if [[ ! ${git_status}} =~ "working directory clean" ]]; then
-    state="${RED}⚡"
+  if [[ ${git_status} =~ "working directory clean" ]]; then
+    state="${GREEN}"
+  elif [[ ${git_status} =~ "Untracked files" ]]; then
+    state="${RED}"
+  else
+    state="${YELLOW}"
   fi
   # add an else if or two here if you want to get more specific
   if [[ ${git_status} =~ ${remote_pattern} ]]; then
     if [[ ${BASH_REMATCH[1]} == "ahead" ]]; then
-      remote="${YELLOW}↑"
+      remote="↑"
     else
-      remote="${YELLOW}↓"
+      remote="↓"
     fi
   fi
   if [[ ${git_status} =~ ${diverge_pattern} ]]; then
-    remote="${YELLOW}↕"
+    remote="↕"
   fi
   if [[ ${git_status} =~ ${branch_pattern} ]]; then
     branch=${BASH_REMATCH[1]}
-    echo " (${branch})${remote}${state}"
+    echo "${state}(${branch})${remote}${COLOR_NONE} "
   fi
 }
 
-function prompt_func() {
-    previous_return_value=$?;
-    # prompt="${TITLEBAR}$BLUE[$RED\w$GREEN$(__git_ps1)$YELLOW$(git_dirty_flag)$BLUE]$COLOR_NONE "
-    prompt="${TITLEBAR}${BLUE}[${RED}\w${GREEN}$(parse_git_branch)${BLUE}]${COLOR_NONE} "
-    if test $previous_return_value -eq 0
-    then
-        PS1="${prompt}➔ "
-    else
-        PS1="${prompt}${RED}➔${COLOR_NONE} "
-    fi
+function prompt_symbol () {
+  # Set color of dollar prompt based on return value of previous command.
+  if test $1 -eq 0
+  then
+      echo "\$"
+  else
+      echo "${RED}\$${COLOR_NONE}"
+  fi
+}
+
+function prompt_func () {
+  last_return_value=$?
+  PS1="\u@\h \w $(parse_git_branch)$(prompt_symbol $last_return_value) "
 }
 
 PROMPT_COMMAND=prompt_func
