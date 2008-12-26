@@ -3,7 +3,7 @@
 # Set our bash prompt according to the branch/status of the current git 
 # repository.
 #
-# Taken from http://gist.github.com/31934
+# Forked from http://gist.github.com/31934
 
         RED="\[\033[0;31m\]"
      YELLOW="\[\033[0;33m\]"
@@ -20,19 +20,23 @@ function is_git_repository {
 }
 
 function parse_git_branch {
+  # Only display git info if we're inside a git repository.
   is_git_repository || return 1
+  
+  # Capture the output of the "git status" command.
   git_status="$(git status 2> /dev/null)"
-  branch_pattern="^# On branch ([^${IFS}]*)"
-  remote_pattern="# Your branch is (.*) of"
-  diverge_pattern="# Your branch and (.*) have diverged"
+
+  # Set color based on clean/staged/dirty.
   if [[ ${git_status} =~ "working directory clean" ]]; then
     state="${GREEN}"
-  elif [[ ${git_status} =~ "Untracked files" ]]; then
-    state="${RED}"
-  else
+  elif [[ ${git_status} =~ "Changes to be committed" ]]; then
     state="${YELLOW}"
+  else
+    state="${RED}"
   fi
-  # add an else if or two here if you want to get more specific
+  
+  # Set arrow icon based on status against remote.
+  remote_pattern="# Your branch is (.*) of"
   if [[ ${git_status} =~ ${remote_pattern} ]]; then
     if [[ ${BASH_REMATCH[1]} == "ahead" ]]; then
       remote="↑"
@@ -40,13 +44,19 @@ function parse_git_branch {
       remote="↓"
     fi
   fi
+  diverge_pattern="# Your branch and (.*) have diverged"
   if [[ ${git_status} =~ ${diverge_pattern} ]]; then
     remote="↕"
   fi
+  
+  # Get the name of the branch.
+  branch_pattern="^# On branch ([^${IFS}]*)"    
   if [[ ${git_status} =~ ${branch_pattern} ]]; then
     branch=${BASH_REMATCH[1]}
-    echo "${state}(${branch})${remote}${COLOR_NONE} "
   fi
+
+  # Display the prompt.
+  echo "${state}(${branch})${remote}${COLOR_NONE} "
 }
 
 function prompt_symbol () {
