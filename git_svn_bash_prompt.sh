@@ -1,14 +1,25 @@
 #!/bin/bash
 #
-# Set our bash prompt according to:
-#  * the branch/status of the current git repository
-#  * the branch of the current subversion repository
-#  * the return value of the previous command
-# 
-# http://gist.github.com/31967
+# DESCRIPTION:
 #
-# Scott Woods <scott@westarete.com>
-# West Arete Computing
+#   Set the bash prompt according to:
+#    * the branch/status of the current git repository
+#    * the branch of the current subversion repository
+#    * the return value of the previous command
+# 
+# USAGE:
+#
+#   1. Save this file as ~/.git_svn_bash_prompt
+#   2. Add the following line to the end of your ~/.profile or ~/.bash_profile:
+#        . ~/.git_svn_bash_prompt
+#
+# AUTHOR:
+# 
+#   Scott Woods <scott@westarete.com>
+#   West Arete Computing
+#
+#   http://gist.github.com/31967
+
 
 # The various escape codes that we can use to color our prompt.
         RED="\[\033[0;31m\]"
