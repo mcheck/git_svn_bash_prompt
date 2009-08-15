@@ -32,7 +32,7 @@ function is_svn_repository {
 }
 
 # Determine the branch/state information for this git repository.
-function parse_git_branch {
+function set_git_branch {
   # Capture the output of the "git status" command.
   git_status="$(git status 2> /dev/null)"
 
@@ -65,12 +65,12 @@ function parse_git_branch {
     branch=${BASH_REMATCH[1]}
   fi
 
-  # Return the prompt.
-  echo "${state}(${branch})${remote}${COLOR_NONE} "
+  # Set the final branch string.
+  BRANCH="${state}(${branch})${remote}${COLOR_NONE} "
 }
 
 # Determine the branch information for this subversion repository.
-function parse_svn_branch {
+function set_svn_branch {
   # Capture the output of the "git status" command.
   svn_info="$(svn info | egrep '^URL: ' 2> /dev/null)"
 
@@ -83,31 +83,38 @@ function parse_svn_branch {
     branch='trunk'
   fi
 
-  # Return the prompt.
-  echo "(${branch}) "
+  # Set the final branch string.
+  BRANCH="(${branch}) "
 }
 
 # Return the prompt symbol to use, colorized based on the return value of the
 # previous command.
-function prompt_symbol () {
+function set_prompt_symbol () {
   if test $1 -eq 0 ; then
-      echo "\$"
+      PROMPT_SYMBOL="\$"
   else
-      echo "${RED}\$${COLOR_NONE}"
+      PROMPT_SYMBOL="${RED}\$${COLOR_NONE}"
   fi
 }
 
-# Set the full prompt.
-function prompt_func () {
-  last_return_value=$?
+# Set the full bash prompt.
+function set_bash_prompt () {
+  # Set the PROMPT_SYMBOL variable. We do this first so we don't lose the 
+  # return value of the last command.
+  set_prompt_symbol $?
+
+  # Set the BRANCH variable.
   if is_git_repository ; then
-    branch="$(parse_git_branch)"
+    set_git_branch
   elif is_svn_repository ; then
-    branch="$(parse_svn_branch)"
+    set_svn_branch
   else
-    branch=''
+    BRANCH=''
   fi
-  PS1="\u@\h \w $branch$(prompt_symbol $last_return_value) "
+  
+  # Set the bash prompt variable.
+  PS1="\u@\h \w ${BRANCH}${PROMPT_SYMBOL} "
 }
 
-PROMPT_COMMAND=prompt_func
+# Tell bash to execute this function just before displaying its prompt.
+PROMPT_COMMAND=set_bash_prompt
