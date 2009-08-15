@@ -82,7 +82,8 @@ function set_git_branch {
   BRANCH="${state}(${branch})${remote}${COLOR_NONE} "
 }
 
-# Determine the branch information for this subversion repository.
+# Determine the branch information for this subversion repository. No support
+# for svn status, since that needs to hit the remote repository.
 function set_svn_branch {
   # Capture the output of the "git status" command.
   svn_info="$(svn info | egrep '^URL: ' 2> /dev/null)"
