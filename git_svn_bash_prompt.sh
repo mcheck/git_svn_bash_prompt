@@ -18,6 +18,8 @@
 #   Scott Woods <scott@westarete.com>
 #   West Arete Computing
 #
+#   Based on work by halbtuerke and lakiolen.
+#
 #   http://gist.github.com/31967
 
 
