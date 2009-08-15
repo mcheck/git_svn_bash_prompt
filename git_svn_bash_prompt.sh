@@ -5,7 +5,7 @@
 #  * the branch of the current subversion repository
 #  * the return value of the previous command
 # 
-# Originally based on http://gist.github.com/31934
+# http://gist.github.com/31967
 #
 # Scott Woods <scott@westarete.com>
 # West Arete Computing
