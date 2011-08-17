@@ -21,6 +21,8 @@
 #   Based on work by halbtuerke and lakiolen.
 #
 #   http://gist.github.com/31967
+#
+#   mcheck: Added ruby version pulled from rvm
 
 
 # The various escape codes that we can use to color our prompt.
@@ -113,6 +115,11 @@ function set_prompt_symbol () {
   fi
 }
 
+function parse_ruby_version {
+  # ruby -v | cut -d" " -f2  # Pull ruby version from ruby
+  ~/.rvm/bin/rvm-prompt      # Pull ruby and gemset from rvm, check the command to format the response differently
+}
+
 # Set the full bash prompt.
 function set_bash_prompt () {
   # Set the PROMPT_SYMBOL variable. We do this first so we don't lose the 
@@ -128,8 +135,9 @@ function set_bash_prompt () {
     BRANCH=''
   fi
   
+
   # Set the bash prompt variable.
-  PS1="\u@\h \w ${BRANCH}${PROMPT_SYMBOL} "
+  PS1="\u@\h:\W ($(parse_ruby_version))${BRANCH}\n${PROMPT_SYMBOL} "
 }
 
 # Tell bash to execute this function just before displaying its prompt.
