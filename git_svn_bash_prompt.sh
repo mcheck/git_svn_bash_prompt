@@ -22,8 +22,7 @@
 #
 #   http://gist.github.com/31967
 #
-#   mcheck: Added ruby version pulled from rvm
-#           Added return to prompt to show long info.
+#   mcheck:     Added rvm ruby version, adjusted regex for git > 1.8.5 clean status output 
 
 
 # The various escape codes that we can use to color our prompt.
@@ -62,7 +61,7 @@ function set_git_branch {
   fi
   
   # Set arrow icon based on status against remote.
-  remote_pattern="# Your branch is (.*) of"
+  remote_pattern="[# ]*Your branch is (.*) of"
   if [[ ${git_status} =~ ${remote_pattern} ]]; then
     if [[ ${BASH_REMATCH[1]} == "ahead" ]]; then
       remote="↑"
@@ -72,13 +71,13 @@ function set_git_branch {
   else
     remote=""
   fi
-  diverge_pattern="# Your branch and (.*) have diverged"
+  diverge_pattern="[# ]*Your branch and (.*) have diverged"
   if [[ ${git_status} =~ ${diverge_pattern} ]]; then
     remote="↕"
   fi
   
   # Get the name of the branch.
-  branch_pattern="^# On branch ([^${IFS}]*)"    
+  branch_pattern="^[# ]*On branch ([^${IFS}]*)"    
   if [[ ${git_status} =~ ${branch_pattern} ]]; then
     branch=${BASH_REMATCH[1]}
   fi
